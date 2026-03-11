@@ -1,0 +1,27 @@
+services:
+  php:
+    build:
+      context: .
+      dockerfile: php/Dockerfile
+    container_name: markdown-to-html-php
+    volumes:
+      - ./src:/var/www
+    networks:
+      - web
+  
+  nginx:
+    image: nginx:alpine
+    container_name: markdown-to-html-nginx
+    ports:
+      - 8000:80
+    volumes:
+      - ./src:/var/www
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+    networks:
+      - web
+    
+networks:
+  web:
+    driver: bridge
