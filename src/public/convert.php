@@ -1,16 +1,16 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/../app/MarkdownConverter.php';
+
+use App\MarkdownConverter;
+
 $markdown = $_POST['markdown'] ?? '';
 $mode = $_POST['mode'] ?? 'preview';
 
-/*
- * まずは最小実装:
- * - XSS回避のためエスケープ
- * - 改行だけ <br> に変換
- * 後で Parsedown に置き換える
- */
-$html = nl2br(htmlspecialchars($markdown, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'));
+$converter = new MarkdownConverter();
+
+$html = $converter->convert($markdown);
 
 if ($mode === 'download') {
     header('Content-Type: text/html; charset=UTF-8');
