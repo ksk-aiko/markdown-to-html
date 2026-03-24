@@ -1,0 +1,12 @@
+{
+    "name": "mdtohtml/app",
+    "type": "project",
+    "require": {
+        "erusev/parsedown": "^1.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    }
+}
