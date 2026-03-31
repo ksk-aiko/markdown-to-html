@@ -1,6 +1,20 @@
 <?php
 declare(strict_types=1);
+
+$defaultMarkdown = <<<MD
+# Sample Title
+
+- item 1
+- item 2
+
+** bold text**
+MD;
+
+$markdown = $_POST['markdown'] ?? $defaultMarkdown;
+$mode = $_POST['mode'] ?? 'preview';
+
 ?>
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -17,8 +31,8 @@ declare(strict_types=1);
 
         <label for="mode">Output Mode</label>
         <select id="mode" name="mode">
-            <option value="preview">Preview</option>
-            <option value="download">Download</option>
+            <option value="preview"<?= $mode === 'preview' ? ' selected' : '' ?>>Preview</option>
+            <option value="download"<?= $mode === 'download' ? ' selected' : '' ?>>Download</option>
         </select><br><br>
 
         <button type="submit">Convert</button>
