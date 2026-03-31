@@ -7,12 +7,15 @@ $defaultMarkdown = <<<MD
 - item 1
 - item 2
 
-** bold text**
+**bold text**
 MD;
 
+// Added: define the same maximum length used by convert.php
+$maxLength = 20000;
+
+// Changed: restore posted values when returning from the preview page
 $markdown = $_POST['markdown'] ?? $defaultMarkdown;
 $mode = $_POST['mode'] ?? 'preview';
-
 ?>
 
 <!DOCTYPE html>
@@ -27,7 +30,9 @@ $mode = $_POST['mode'] ?? 'preview';
 
     <form action="/convert.php" method="post">
         <label for="markdown">Markdown</label><br>
-        <textarea id="markdown" name="markdown" rows="12" cols="80" placeholder="# Hello"></textarea><br><br>
+        <!-- Added: inform the browser and the user about the input limit -->
+        <textarea id="markdown" name="markdown" rows="12" cols="80" maxlength="<?= $maxLength ?>"><?= htmlspecialchars($markdown, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></textarea><br>
+        <p>Maximum: <?= $maxLength ?> characters</p>
 
         <label for="mode">Output Mode</label>
         <select id="mode" name="mode">
