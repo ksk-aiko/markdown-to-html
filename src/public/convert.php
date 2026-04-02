@@ -17,24 +17,9 @@ $mode = $_POST['mode'] ?? 'preview';
 // Added: define a simple maximum input size
 $maxLength = 20000;
 
-// Added: reject overly large input before conversion
+// Added: reject overly large input and redirect to index with an error code
 if (mb_strlen($markdown) > $maxLength) {
-    http_response_code(422);
-    ?>
-    <!DOCTYPE html>
-    <html lang="ja">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Input Error</title>
-    </head>
-    <body>
-        <h1>Input Error</h1>
-        <p>Markdown must be 20,000 characters or less.</p>
-        <a href="/">Back</a>
-    </body>
-    </html>
-    <?php
+    header('Location: /?error=too_long', true, 303);
     exit;
 }
 
