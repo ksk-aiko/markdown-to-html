@@ -33,15 +33,21 @@ $mode = $_POST['mode'] ?? 'preview';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Markdown to HTML</title>
+     <!-- Added: dedicated style for error messages -->
+    <style>
+        .error-message {
+            color: #b00020;
+        }
+    </style>
 </head>
 <body>
     <h1>Markdown to HTML Converter</h1>
 
     <!-- Added: show an error message when an error code is provided -->
     <?php if ($errorMessage !== null): ?>
-        <p style="color: #b00020";><?=  htmlspecialchars($errorMessage, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
+        <p class="error-message"><?=  htmlspecialchars($errorMessage, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
     <?php endif; ?>
-    
+
     <form action="/convert.php" method="post">
         <label for="markdown">Markdown</label><br>
         <!-- Added: inform the browser and the user about the input limit -->
