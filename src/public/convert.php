@@ -17,10 +17,9 @@ $mode = $_POST['mode'] ?? 'preview';
 // Added: define a simple maximum input size
 $maxLength = 20000;
 
-// Added: reject overly large input and redirect to index with an error code
+// Added: return an error code if the input exceeds the maximum length
 if (mb_strlen($markdown) > $maxLength) {
-    header('Location: /?error=too_long', true, 303);
-    exit;
+    http_response_code((422));
 }
 
 $converter = new MarkdownConverter();
@@ -82,12 +81,17 @@ if ($mode === 'download') {
         </section>
 
         <div class="actions">
-            <form action="/" method="post">
+            <form id="error-return-form"action="/" method="post">
+                <input type="hidden" name="error" value="too_long">
                 <input type="hidden" name="markdown" value="<?= htmlspecialchars($markdown, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
                 <input type="hidden" name="mode" value="<?= htmlspecialchars($mode, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
-                <button type="submit" class="back-button">Back</button>
+                <noscript><button type="submit" class="back-button">Back</button></noscript>
             </form>
         </div>
     </main>
+    <script>
+        // Added: automatically return to the form with an error code if JavaScript is enabled
+        document.getElementById('error-return-form').submit();
+    </script>
 </body>
 </html>
