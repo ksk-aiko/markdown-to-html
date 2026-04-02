@@ -13,8 +13,8 @@ MD;
 // Added: define the same maximum length used by convert.php
 $maxLength = 20000;
 
-// Added: accept an optional error code from query string
-$errorCode = $_GET['error'] ?? null;
+// Added:  
+$errorCode = $_GET['error'] ?? $_POST['error'] ?? null;
 
 // Added: map error code to a user-friendly message
 $errorMessage = null;
