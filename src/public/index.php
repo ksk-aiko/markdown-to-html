@@ -13,6 +13,15 @@ MD;
 // Added: define the same maximum length used by convert.php
 $maxLength = 20000;
 
+// Added: accept an optional error code from query string
+$errorCode = $_GET['error'] ?? null;
+
+// Added: map error code to a user-friendly message
+$errorMessage = null;
+if ($errorCode === 'too_long') {
+    $errorMessage = "Markdown must be {$maxLength} characters or less.";
+}
+
 // Changed: restore posted values when returning from the preview page
 $markdown = $_POST['markdown'] ?? $defaultMarkdown;
 $mode = $_POST['mode'] ?? 'preview';
@@ -28,6 +37,11 @@ $mode = $_POST['mode'] ?? 'preview';
 <body>
     <h1>Markdown to HTML Converter</h1>
 
+    <!-- Added: show an error message when an error code is provided -->
+    <?php if ($errorMessage !== null): ?>
+        <p style="color: #b00020";><?=  htmlspecialchars($errorMessage, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
+    <?php endif; ?>
+    
     <form action="/convert.php" method="post">
         <label for="markdown">Markdown</label><br>
         <!-- Added: inform the browser and the user about the input limit -->
