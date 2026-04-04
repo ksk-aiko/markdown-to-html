@@ -18,6 +18,32 @@ $mode = in_array($rawMode, $allowedModes, true) ? $rawMode : 'preview';
 
 $maxLength = 20000;
 
+// Added: reject empty input and return to index via POST
+if (trim($markdown) === '') {
+    http_response_code(422);
+    ?>
+    <!DOCTYPE html>
+    <html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <title>Redirecting...</title>
+    </head>
+    <body>
+        <form id="error-return-form" action="/" method="post">
+            <input type="hidden" name="error" value="empty_markdown">
+            <input type="hidden" name="markdown" value="">
+            <input type="hidden" name="mode" value="<?= htmlspecialchars($mode, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+            <noscript><button type="submit">Back</button></noscript>
+        </form>
+        <script>
+            document.getElementById('error-return-form').submit();
+        </script>
+    </body>
+    </html>
+    <?php
+    exit;
+}
+
 if (mb_strlen($markdown) > $maxLength) {
     http_response_code(422);
     ?>
