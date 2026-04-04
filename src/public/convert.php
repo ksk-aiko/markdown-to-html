@@ -17,9 +17,33 @@ $mode = $_POST['mode'] ?? 'preview';
 // Added: define a simple maximum input size
 $maxLength = 20000;
 
-// Added: return an error code if the input exceeds the maximum length
+// Changed: if input is too long, return to index via POST and stop processing
 if (mb_strlen($markdown) > $maxLength) {
-    http_response_code((422));
+    http_response_code(422);
+    ?>
+    <!DOCTYPE html>
+    <html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <title>Redirecting...</title>
+    </head>
+    <body>
+        <!-- Added: preserve error code and previous input values -->
+        <form id="error-return-form" action="/" method="post">
+            <input type="hidden" name="error" value="too_long">
+            <input type="hidden" name="markdown" value="<?= htmlspecialchars($markdown, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+            <input type="hidden" name="mode" value="<?= htmlspecialchars($mode, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+            <noscript><button type="submit">Back</button></noscript>
+        </form>
+
+        <!-- Added: auto-submit only in the too-long branch -->
+        <script>
+            document.getElementById('error-return-form').submit();
+        </script>
+    </body>
+    </html>
+    <?php
+    exit;
 }
 
 $converter = new MarkdownConverter();
@@ -81,17 +105,13 @@ if ($mode === 'download') {
         </section>
 
         <div class="actions">
-            <form id="error-return-form"action="/" method="post">
-                <input type="hidden" name="error" value="too_long">
+            <!-- Changed: normal back form (no forced error, no auto-submit) -->
+            <form action="/" method="post">
                 <input type="hidden" name="markdown" value="<?= htmlspecialchars($markdown, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
                 <input type="hidden" name="mode" value="<?= htmlspecialchars($mode, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
-                <noscript><button type="submit" class="back-button">Back</button></noscript>
+                <button type="submit" class="back-button">Back</button>
             </form>
         </div>
     </main>
-    <script>
-        // Added: automatically return to the form with an error code if JavaScript is enabled
-        document.getElementById('error-return-form').submit();
-    </script>
 </body>
 </html>
