@@ -1,7 +1,6 @@
 <?php
 declare(strict_types=1);
 
-// Added: allow only POST access to this endpoint
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: /');
     exit;
@@ -12,12 +11,13 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use App\MarkdownConverter;
 
 $markdown = $_POST['markdown'] ?? '';
-$mode = $_POST['mode'] ?? 'preview';
 
-// Added: define a simple maximum input size
+$allowedModes = ['preview', 'download'];
+$rawMode = $_POST['mode'] ?? 'preview';
+$mode = in_array($rawMode, $allowedModes, true) ? $rawMode : 'preview';
+
 $maxLength = 20000;
 
-// Changed: if input is too long, return to index via POST and stop processing
 if (mb_strlen($markdown) > $maxLength) {
     http_response_code(422);
     ?>
@@ -28,7 +28,6 @@ if (mb_strlen($markdown) > $maxLength) {
         <title>Redirecting...</title>
     </head>
     <body>
-        <!-- Added: preserve error code and previous input values -->
         <form id="error-return-form" action="/" method="post">
             <input type="hidden" name="error" value="too_long">
             <input type="hidden" name="markdown" value="<?= htmlspecialchars($markdown, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
@@ -36,7 +35,6 @@ if (mb_strlen($markdown) > $maxLength) {
             <noscript><button type="submit">Back</button></noscript>
         </form>
 
-        <!-- Added: auto-submit only in the too-long branch -->
         <script>
             document.getElementById('error-return-form').submit();
         </script>
@@ -105,7 +103,6 @@ if ($mode === 'download') {
         </section>
 
         <div class="actions">
-            <!-- Changed: normal back form (no forced error, no auto-submit) -->
             <form action="/" method="post">
                 <input type="hidden" name="markdown" value="<?= htmlspecialchars($markdown, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
                 <input type="hidden" name="mode" value="<?= htmlspecialchars($mode, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
