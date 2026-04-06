@@ -17,6 +17,8 @@ $errorCode = $_GET['error'] ?? $_POST['error'] ?? null;
 $errorMessage = null;
 if ($errorCode === 'too_long') {
     $errorMessage = "Markdown must be {$maxLength} characters or less.";
+} elseif ($errorCode === 'empty_markdown') {
+    $errorMessage = "Markdown cannot be empty.";
 }
 
 $markdown = $_POST['markdown'] ?? $defaultMarkdown;
