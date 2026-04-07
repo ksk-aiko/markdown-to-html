@@ -46,7 +46,7 @@ function returnWithError(string $errorCode, string $markdown, string $mode): voi
 
 // Added: reject empty input and return to index via POST
 if (trim($markdown) === '') {
-    returnWithError('empty_input', $markdown, $mode);
+    returnWithError('empty_markdown', $markdown, $mode);
 }
 
 if (mb_strlen($markdown) > $maxLength) {
