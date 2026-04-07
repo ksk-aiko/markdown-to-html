@@ -12,7 +12,8 @@ MD;
 
 $maxLength = 20000;
 
-$errorCode = $_GET['error'] ?? $_POST['error'] ?? null;
+$allowedErrorCodes = ['too_long', 'empty_markdown'];
+$errorCode = in_array($errorCode, $allowedErrorCodes, true) ? $errorCode : null;
 
 $errorMessage = null;
 if ($errorCode === 'too_long') {
