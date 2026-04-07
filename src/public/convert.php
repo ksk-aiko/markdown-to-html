@@ -18,9 +18,17 @@ $mode = in_array($rawMode, $allowedModes, true) ? $rawMode : 'preview';
 
 $maxLength = 20000;
 
+function sendSecurityHeaders(): void
+{
+    header('X-Content-Type-Options: nosniff');
+    header('X-Frame-Options: DENY');
+    header('Referrer-Policy: noreferrer');
+    header("Content-Security-Poilcy: default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline; form-action 'self'; base-uri frame-ancestors 'none'");
+
 function returnWithError(string $errorCode, string $markdown, string $mode): void
 {
     http_response_code(422);
+    sendSecurityHeaders();
     ?>
     <!DOCTYPE html>
     <html lang="ja">
@@ -57,6 +65,7 @@ $converter = new MarkdownConverter();
 $html = $converter->convert($markdown);
 
 if ($mode === 'download') {
+    sendSecurityHeaders();
     header('Content-Type: text/html; charset=UTF-8');
     header('Content-Disposition: attachment; filename="converted.html"');
     echo $html;
