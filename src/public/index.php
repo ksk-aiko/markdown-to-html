@@ -30,6 +30,11 @@ $markdown = $_POST['markdown'] ?? $defaultMarkdown;
 $allowedModes = ['preview', 'download'];
 $rawMode = $_POST['mode'] ?? 'preview';
 $mode = in_array($rawMode, $allowedModes, true) ? $rawMode : 'preview';
+
+if (!isset($_SESSION['csrf_token']) || !is_string($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+$csrfToken = $_SESSION['csrf_token'];
 ?>
 
 <!DOCTYPE html>
@@ -52,6 +57,7 @@ $mode = in_array($rawMode, $allowedModes, true) ? $rawMode : 'preview';
     <?php endif; ?>
 
     <form action="/convert.php" method="post">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
         <label for="markdown">Markdown</label><br>
         <textarea id="markdown" name="markdown" rows="12" cols="80" maxlength="<?= $maxLength ?>"><?= htmlspecialchars($markdown, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></textarea><br>
         <p>Maximum: <?= $maxLength ?> characters</p>
