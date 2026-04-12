@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+session_start();
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: /');
     exit;
@@ -23,7 +25,8 @@ function sendSecurityHeaders(): void
     header('X-Content-Type-Options: nosniff');
     header('X-Frame-Options: DENY');
     header('Referrer-Policy: noreferrer');
-    header("Content-Security-Poilcy: default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline; form-action 'self'; base-uri frame-ancestors 'none'");
+    header("Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; form-action 'self'; base-uri 'self'; frame-ancestors 'none'");
+}
 
 function returnWithError(string $errorCode, string $markdown, string $mode): void
 {
@@ -52,7 +55,15 @@ function returnWithError(string $errorCode, string $markdown, string $mode): voi
     exit;
 }
 
-// Added: reject empty input and return to index via POST
+$csrfToken = $_POST['csrf_token'] ?? '';
+$sessionToken = $_SESSION['csrf_token'] ?? '';
+if (!is_string($csrfToken) || !is_string($sessionToken) || $csrfToken === '' || !hash_equals($sessionToken, $csrfToken)) {
+    http_response_code(403);
+    sendSecurityHeaders();
+    echo 'Forbidden';
+    exit;
+}
+
 if (trim($markdown) === '') {
     returnWithError('empty_markdown', $markdown, $mode);
 }
