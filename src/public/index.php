@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+session_start();
+
 $defaultMarkdown = <<<MD
 # Sample Title
 
@@ -13,7 +15,7 @@ MD;
 $maxLength = 20000;
 
 $errorCode = $_POST['error'] ?? ($_GET['error'] ?? null);
-$allowedErrorCodes = ['too_long', 'empty_markdown'];
+$allowedErrorCodes = ['too_long', 'empty_markdown', 'invalid_csrf'];
 $errorCode = in_array($errorCode, $allowedErrorCodes, true) ? $errorCode : null;
 
 $errorMessage = null;
@@ -21,6 +23,8 @@ if ($errorCode === 'too_long') {
     $errorMessage = "Markdown must be {$maxLength} characters or less.";
 } elseif ($errorCode === 'empty_markdown') {
     $errorMessage = "Markdown cannot be empty.";
+} elseif ($errorCode === 'invalid_csrf') {
+    $errorMessage = 'Session expired or invalid request.Please try again.';
 } else {
     $errorMessage = null;
 }
