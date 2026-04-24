@@ -74,7 +74,7 @@ $csrfToken = $_SESSION['csrf_token'];
         <p class="error-message"><?=  htmlspecialchars($errorMessage, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
     <?php endif; ?>
 
-    <form action="/convert.php" method="post">
+    <form id="convert-form" action="/convert.php" method="post">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
         <label for="markdown">Markdown</label><br>
         <div id="monaco-editor" aria-label="Markdown Editor"></div>
@@ -90,7 +90,7 @@ $csrfToken = $_SESSION['csrf_token'];
         <button type="submit">Convert</button>
     </form>
 
-    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@.52.2/min/vs/loader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs/loader.js"></script>
     <script>
         (function () {
             var textarea = document.getElementById('markdown');
@@ -105,7 +105,7 @@ $csrfToken = $_SESSION['csrf_token'];
 
             window.require.config({
                 paths: {
-                    vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@.52.2/min/vs'
+                    vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs'
                 }
             });
 
@@ -114,9 +114,13 @@ $csrfToken = $_SESSION['csrf_token'];
                     value: textarea.value,
                     language: 'markdown',
                     theme: 'vs',
-                    minimap: 'on',
+                    minimap: { enabled: true },
                     automaticLayout: true,
-                })
+                });
+
+                form.addEventListener('submit', function () {
+                    textarea.value = editor.getValue();
+                });
             });
         })();
     </script>
