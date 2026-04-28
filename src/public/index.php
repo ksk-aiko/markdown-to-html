@@ -49,10 +49,10 @@ $csrfToken = $_SESSION['csrf_token'];
     <title>Markdown to HTML</title>
     <style>
         :root {
-            --page-max-width: 1380px; /* Changed: wider canvas like reference */
-            --workspace-height: clamp(520px, calc(100dvh - 170px), 760px); /* Changed: viewport-safe fixed workspace height */
-            --panel-bg: #f3f3f3; /* Added: reference-like gray */
-            --line: #bdbdbd; /* Added: divider/border color */
+            --page-max-width: 1380px; 
+            --workspace-height: clamp(520px, calc(100dvh - 170px), 760px);
+            --panel-bg: #f3f3f3; 
+            --line: #bdbdbd;
         }
 
         html {
@@ -63,7 +63,7 @@ $csrfToken = $_SESSION['csrf_token'];
             margin: 0;
             padding: 20px 16px;
             box-sizing: border-box;
-            background: #efefef; /* Changed: page background tone */
+            background: #efefef;
             color: #222;
             font-family: sans-serif;
         }
@@ -75,26 +75,25 @@ $csrfToken = $_SESSION['csrf_token'];
 
         .workspace {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr)); /* Changed: equal width */
-            height: var(--workspace-height); /* Added: unified tall height */
-            min-height: 0; /* Added: allow children to shrink */
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            height: var(--workspace-height);
+            min-height: 0;
             border: 1px solid var(--line);
             background: #fff;
-            overflow: hidden; /* Added: stop endless vertical expansion */
+            overflow: hidden; 
         }
 
         .pane {
             min-width: 0;
-            min-height: 0; /* Added: needed for inner scroll containers */
+            min-height: 0;
             height: 100%;
             background: var(--panel-bg);
             box-sizing: border-box;
         }
 
         .pane-left {
-            border-right: 1px solid var(--line); /* Added: center divider */
+            border-right: 1px solid var(--line);
             padding: 10px;
-            /* Added: label + editor area */
             display: grid;
             grid-template-rows: auto 1fr;
             gap: 8px;
@@ -103,9 +102,9 @@ $csrfToken = $_SESSION['csrf_token'];
         .pane-right {
             padding: 10px;
             display: grid;
-            grid-template-rows: auto 1fr; /* Added: toolbar + preview */
+            grid-template-rows: auto 1fr;
             gap: 10px;
-            min-height: 0; /* Added */
+            min-height: 0;
         }
 
         .toolbar {
@@ -132,9 +131,9 @@ $csrfToken = $_SESSION['csrf_token'];
         #monaco-editor {
             width: 100%;
             height: 100%;
-            min-height: 0; /* Added */
+            min-height: 0;
             border: 1px solid var(--line);
-            border-radius: 0; /* Changed: square edges like reference */
+            border-radius: 0;
             box-sizing: border-box;
             background: #fff;
         }
@@ -142,7 +141,7 @@ $csrfToken = $_SESSION['csrf_token'];
         #live-preview {
             width: 100%;
             height: 100%;
-            min-height: 0; /* Added */
+            min-height: 0;
             border: 1px solid var(--line);
             border-radius: 0;
             box-sizing: border-box;
@@ -177,7 +176,6 @@ $csrfToken = $_SESSION['csrf_token'];
         @media (max-width: 900px) {
             .workspace {
                 grid-template-columns: 1fr;
-                /* Changed: avoid oversized full viewport block on mobile */
                 height: auto;
                 max-height: none;
             }
@@ -192,7 +190,6 @@ $csrfToken = $_SESSION['csrf_token'];
                 min-height: 320px;
             }
 
-            /* Added: mobile-safe panel height */
             #monaco-editor,
             #live-preview {
                 height: 45vh;
@@ -233,7 +230,6 @@ $csrfToken = $_SESSION['csrf_token'];
         </form>
     </main>
 
-    <!-- Added: highlight.js -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/styles/github.min.css">
 <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/lib/highlight.min.js"></script>
 
@@ -331,7 +327,6 @@ $csrfToken = $_SESSION['csrf_token'];
                     timer = setTimeout(renderPreview, 120);
                 });
 
-                // Added: HTML button click handler
                 if (viewHtmlButton) {
                     viewHtmlButton.addEventListener('click', function () {
                         isHtmlView = !isHtmlView;
@@ -340,7 +335,6 @@ $csrfToken = $_SESSION['csrf_token'];
                     });
                 }
 
-                // Added: Highlight button click handler
                 if (highlightToggleButton) {
                     highlightToggleButton.addEventListener('click', function () {
                         isHighlightEnabled = !isHighlightEnabled;
