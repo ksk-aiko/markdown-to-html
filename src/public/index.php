@@ -49,20 +49,21 @@ $csrfToken = $_SESSION['csrf_token'];
     <title>Markdown to HTML</title>
     <style>
         :root {
-            --page-max-width: 1280px;
-            --panel-height: 420px;
+            --page-max-width: 1380px; /* Changed: wider canvas like reference */
+            --workspace-height: calc(100vh - 210px); /* Added: tall split area */
+            --panel-bg: #f3f3f3; /* Added: reference-like gray */
+            --line: #bdbdbd; /* Added: divider/border color */
         }
 
         html {
             overflow-y: scroll;
         }
 
-
         body {
             margin: 0;
-            padding: 24px 16px;
+            padding: 20px 16px;
             box-sizing: border-box;
-            background: #f5f5f5;
+            background: #efefef; /* Changed: page background tone */
             color: #222;
             font-family: sans-serif;
         }
@@ -72,43 +73,88 @@ $csrfToken = $_SESSION['csrf_token'];
             margin: 0 auto;
         }
 
-        .error-message {
-            color: #b00020;
+        .workspace {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr)); /* Changed: equal width */
+            height: var(--workspace-height); /* Added: unified tall height */
+            min-height: 560px;
+            border: 1px solid var(--line);
+            background: #fff;
+        }
+
+        .pane {
+            min-width: 0;
+            height: 100%;
+            background: var(--panel-bg);
+            box-sizing: border-box;
+        }
+
+        .pane-left {
+            border-right: 1px solid var(--line); /* Added: center divider */
+            padding: 10px;
+        }
+
+        .pane-right {
+            padding: 10px;
+            display: grid;
+            grid-template-rows: auto 1fr; /* Added: toolbar + preview */
+            gap: 10px;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .toolbar button,
+        .toolbar .mode-select {
+            height: 32px;
+            padding: 0 10px;
+            border: 1px solid #8f8f8f;
+            background: #f7f7f7;
+            border-radius: 3px;
+            font-size: 14px;
         }
 
         #monaco-editor {
             width: 100%;
-            max-width: 980px;
-            height: 420px;
-            border: 1px solid #cccccc;
-            border-radius: 6px;
-            margin-top: 8px;
-            margin-bottom: 8px;
+            height: 100%;
+            border: 1px solid var(--line);
+            border-radius: 0; /* Changed: square edges like reference */
+            box-sizing: border-box;
+            background: #fff;
+        }
+
+        #live-preview {
+            width: 100%;
+            height: 100%;
+            border: 1px solid var(--line);
+            border-radius: 0;
+            box-sizing: border-box;
+            background: #fff;
+            overflow: auto;
+            padding: 14px;
         }
 
         .is-monaco-enabled #markdown {
             display: none;
         }
 
-        .split-layout {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            max-width: 1280px;
-        }
-
-        #live-preview {
-            min-height: 420px;
-            border: 1px solid #cccccc;
-            border-radius: 6px;
-            padding: 12px;
-            background: #ffffff;
-            overflow: auto;
-        }
-
         @media (max-width: 900px) {
-            .split-layout {
+            .workspace {
                 grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .pane-left {
+                border-right: none;
+                border-bottom: 1px solid var(--line);
+                min-height: 360px;
+            }
+
+            .pane-right {
+                min-height: 360px;
             }
         }
     </style>
@@ -121,24 +167,27 @@ $csrfToken = $_SESSION['csrf_token'];
         <?php endif; ?>
         <form id="convert-form" action="/convert.php" method="post">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
-            <div class="split-layout">
-                <section>
-                    <label for="markdown">Markdown</label><br>
+
+            <div class="workspace">
+                <section class="pane pane-left">
+                    <label for="markdown">Markdown</label>
                     <div id="monaco-editor" aria-label="Markdown Editor"></div>
-                    <textarea id="markdown" name="markdown" rows="12" cols="80" maxlength="<?= $maxLength ?>"><?= htmlspecialchars($markdown, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></textarea><br>
-                    <p>Maximum: <?= $maxLength ?> characters</p>
+                    <textarea id="markdown" name="markdown" rows="12" cols="80" maxlength="<?= $maxLength ?>"><?= htmlspecialchars($markdown, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></textarea>
                 </section>
-                <section>
-                    <h2>Live Preview</h2>
+
+                <section class="pane pane-right">
+                    <div class="toolbar">
+                        <!-- Changed: moved controls to top-right area -->
+                        <select id="mode" name="mode" class="mode-select">
+                            <option value="preview"<?= $mode === 'preview' ? ' selected' : '' ?>>Preview</option>
+                            <option value="download"<?= $mode === 'download' ? ' selected' : '' ?>>Download</option>
+                        </select>
+                        <button type="submit">Convert</button>
+                    </div>
+
                     <div id="live-preview" aria-live="polite"></div>
                 </section>
             </div>
-            <label for="mode">Output Mode</label>
-            <select id="mode" name="mode">
-                <option value="preview"<?= $mode === 'preview' ? ' selected' : '' ?>>Preview</option>
-                <option value="download"<?= $mode === 'download' ? ' selected' : '' ?>>Download</option>
-            </select><br><br>
-            <button type="submit">Convert</button>
         </form>
     </main>
 
