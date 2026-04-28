@@ -90,24 +90,39 @@ if ($mode === 'download') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Preview</title>
     <style>
+        :root {
+            --page-max-width: 1380px;
+            --workspace-height: clamp(520px, calc(100dvh - 170px), 760px);
+            --line: #bdbdbd;
+        }
+
+        html {
+            overflow-y: scroll;
+        }
+
         body {
             margin: 0;
-            padding: 32px 16px;
+            padding: 20px 16px;
+            box-sizing: border-box;
             font-family: sans-serif;
-            background-color: #f5f5f5;
+            background-color: #efefef;
             color: #222;
         }
 
         .container {
-            max-width: 960px;
+            max-width: var(--page-max-width);
             margin: 0 auto;
         }
 
         .preview {
-            padding: 24px;
+            height: var(--workspace-height);
+            min-height: 0;
+            overflow: auto;
+            padding: 14px;
             background-color: #ffffff;
-            border: 1px solid #dddddd;
-            border-radius: 8px;
+            border: 1px solid var(--line);
+            border-radius: 0;
+            box-sizing: border-box;
         }
 
         .actions {
@@ -116,10 +131,16 @@ if ($mode === 'download') {
 
         .back-button {
             padding: 10px 16px;
-            border: 1px solid #cccccc;
-            border-radius: 6px;
-            background-color: #ffffff;
+            border: 1px solid #8f8f8f;
+            border-radius: 3px;
+            background-color: #f7f7f7;
             cursor: pointer;
+        }
+
+        @media (max-width: 900px) {
+            .preview {
+                height: 45vh;
+            }
         }
     </style>
 </head>

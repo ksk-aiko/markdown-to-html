@@ -124,6 +124,11 @@ $csrfToken = $_SESSION['csrf_token'];
             font-size: 14px;
         }
 
+        .toolbar .toggle-active {
+            background: #dfe9ff;
+            border-color: #7f9dff;
+        }
+
         #monaco-editor {
             width: 100%;
             height: 100%;
@@ -144,6 +149,25 @@ $csrfToken = $_SESSION['csrf_token'];
             background: #fff;
             overflow: auto;
             padding: 14px;
+        }
+
+        #live-preview pre.html-source {
+            margin: 0;
+            border: 1px solid #d6d6d6;
+            border-radius: 4px;
+            background: #f6f8fa;
+            overflow: auto;
+            height: 100%;
+            box-sizing: border-box;
+        }
+
+        #live-preview pre.html-source code {
+            display: block;
+            padding: 14px 16px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre;
         }
 
         .is-monaco-enabled #markdown {
@@ -194,12 +218,13 @@ $csrfToken = $_SESSION['csrf_token'];
 
                 <section class="pane pane-right">
                     <div class="toolbar">
-                        <!-- Changed: moved controls to top-right area -->
                         <select id="mode" name="mode" class="mode-select">
                             <option value="preview"<?= $mode === 'preview' ? ' selected' : '' ?>>Preview</option>
                             <option value="download"<?= $mode === 'download' ? ' selected' : '' ?>>Download</option>
                         </select>
                         <button type="submit">Convert</button>
+                        <button type="button" id="view-html-button">HTML</button>
+                        <button type="button" id="highlight-toggle-button">Highlight ON</button>
                     </div>
 
                     <div id="live-preview" aria-live="polite"></div>
@@ -208,16 +233,22 @@ $csrfToken = $_SESSION['csrf_token'];
         </form>
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/lib/marked.umd.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs/loader.js"></script>
+    <!-- Added: highlight.js -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/styles/github.min.css">
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/lib/highlight.min.js"></script>
 
-    <script>
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/lib/marked.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs/loader.js"></script>
+
+<script>
         (function () {
             var textarea = document.getElementById('markdown');
             var form = document.getElementById('convert-form');
             var mount = document.getElementById('monaco-editor');
             var livePreview = document.getElementById('live-preview');
+            var viewHtmlButton = document.getElementById('view-html-button');
+            var highlightToggleButton = document.getElementById('highlight-toggle-button');
 
             if (!window.require || !textarea || !form || !mount || !livePreview) {
                 return;
@@ -237,21 +268,59 @@ $csrfToken = $_SESSION['csrf_token'];
                     language: 'markdown',
                     theme: 'vs',
                     minimap: { enabled: false },
-                    automaticLayout: true,
+                    automaticLayout: true
                 });
 
                 requestAnimationFrame(function () {
                     editor.layout();
-                })
+                });
+
+                var isHtmlView = false;
+                var isHighlightEnabled = true;
+
+                function syncToolbarState() {
+                    if (viewHtmlButton) {
+                        viewHtmlButton.classList.toggle('toggle-active', isHtmlView);
+                    }
+                    if (highlightToggleButton) {
+                        highlightToggleButton.textContent = isHighlightEnabled ? 'Highlight ON' : 'Highlight OFF';
+                        highlightToggleButton.classList.toggle('toggle-active', isHighlightEnabled);
+                    }
+                }
 
                 function renderPreview() {
                     if (!window.marked || !window.DOMPurify) {
                         livePreview.textContent = 'Preview libraries are not loaded.';
                         return;
                     }
+
                     var raw = editor.getValue();
                     var parsed = marked.parse(raw);
-                    livePreview.innerHTML = DOMPurify.sanitize(parsed);
+                    var sanitized = DOMPurify.sanitize(parsed);
+
+                    if (isHtmlView) {
+                        var escapedHtml = sanitized
+                            .replace(/&/g, '&amp;')
+                            .replace(/</g, '&lt;')
+                            .replace(/>/g, '&gt;');
+
+                        livePreview.innerHTML = '<pre class="html-source"><code class="language-html">' + escapedHtml + '</code></pre>';
+
+                        if (isHighlightEnabled && window.hljs) {
+                            var htmlBlock = livePreview.querySelector('pre code');
+                            if (htmlBlock) {
+                                window.hljs.highlightElement(htmlBlock);
+                            }
+                        }
+                    } else {
+                        livePreview.innerHTML = sanitized;
+
+                        if (isHighlightEnabled && window.hljs) {
+                            livePreview.querySelectorAll('pre code').forEach(function (block) {
+                                window.hljs.highlightElement(block);
+                            });
+                        }
+                    }
                 }
 
                 var timer = null;
@@ -262,6 +331,25 @@ $csrfToken = $_SESSION['csrf_token'];
                     timer = setTimeout(renderPreview, 120);
                 });
 
+                // Added: HTML button click handler
+                if (viewHtmlButton) {
+                    viewHtmlButton.addEventListener('click', function () {
+                        isHtmlView = !isHtmlView;
+                        syncToolbarState();
+                        renderPreview();
+                    });
+                }
+
+                // Added: Highlight button click handler
+                if (highlightToggleButton) {
+                    highlightToggleButton.addEventListener('click', function () {
+                        isHighlightEnabled = !isHighlightEnabled;
+                        syncToolbarState();
+                        renderPreview();
+                    });
+                }
+
+                syncToolbarState();
                 renderPreview();
 
                 form.addEventListener('submit', function () {
