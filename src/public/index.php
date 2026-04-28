@@ -50,7 +50,7 @@ $csrfToken = $_SESSION['csrf_token'];
     <style>
         :root {
             --page-max-width: 1380px; /* Changed: wider canvas like reference */
-            --workspace-height: calc(100vh - 210px); /* Added: tall split area */
+            --workspace-height: clamp(520px, calc(100dvh - 170px), 760px); /* Changed: viewport-safe fixed workspace height */
             --panel-bg: #f3f3f3; /* Added: reference-like gray */
             --line: #bdbdbd; /* Added: divider/border color */
         }
@@ -77,13 +77,15 @@ $csrfToken = $_SESSION['csrf_token'];
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr)); /* Changed: equal width */
             height: var(--workspace-height); /* Added: unified tall height */
-            min-height: 560px;
+            min-height: 0; /* Added: allow children to shrink */
             border: 1px solid var(--line);
             background: #fff;
+            overflow: hidden; /* Added: stop endless vertical expansion */
         }
 
         .pane {
             min-width: 0;
+            min-height: 0; /* Added: needed for inner scroll containers */
             height: 100%;
             background: var(--panel-bg);
             box-sizing: border-box;
@@ -92,6 +94,10 @@ $csrfToken = $_SESSION['csrf_token'];
         .pane-left {
             border-right: 1px solid var(--line); /* Added: center divider */
             padding: 10px;
+            /* Added: label + editor area */
+            display: grid;
+            grid-template-rows: auto 1fr;
+            gap: 8px;
         }
 
         .pane-right {
@@ -99,6 +105,7 @@ $csrfToken = $_SESSION['csrf_token'];
             display: grid;
             grid-template-rows: auto 1fr; /* Added: toolbar + preview */
             gap: 10px;
+            min-height: 0; /* Added */
         }
 
         .toolbar {
@@ -120,6 +127,7 @@ $csrfToken = $_SESSION['csrf_token'];
         #monaco-editor {
             width: 100%;
             height: 100%;
+            min-height: 0; /* Added */
             border: 1px solid var(--line);
             border-radius: 0; /* Changed: square edges like reference */
             box-sizing: border-box;
@@ -129,6 +137,7 @@ $csrfToken = $_SESSION['csrf_token'];
         #live-preview {
             width: 100%;
             height: 100%;
+            min-height: 0; /* Added */
             border: 1px solid var(--line);
             border-radius: 0;
             box-sizing: border-box;
@@ -144,17 +153,25 @@ $csrfToken = $_SESSION['csrf_token'];
         @media (max-width: 900px) {
             .workspace {
                 grid-template-columns: 1fr;
+                /* Changed: avoid oversized full viewport block on mobile */
                 height: auto;
+                max-height: none;
             }
 
             .pane-left {
                 border-right: none;
                 border-bottom: 1px solid var(--line);
-                min-height: 360px;
+                min-height: 320px;
             }
 
             .pane-right {
-                min-height: 360px;
+                min-height: 320px;
+            }
+
+            /* Added: mobile-safe panel height */
+            #monaco-editor,
+            #live-preview {
+                height: 45vh;
             }
         }
     </style>
